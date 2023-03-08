@@ -11,18 +11,11 @@ import lombok.NoArgsConstructor;
 @Data
 public class Funcionario {
     
-    private int id;
+    private int codigo;
     private String nome;
     private String cpf;
     private LocalDate nascimento;
     private String cargo;
     private LocalDate adimissao;
     
-    public Funcionario(String nome, String cpf, LocalDate nascimento, String cargo, LocalDate adimissao) {
-        this.nome = nome;
-        this.cpf = cpf;
-        this.nascimento = nascimento;
-        this.cargo = cargo;
-        this.adimissao = adimissao;
-    }
 }
