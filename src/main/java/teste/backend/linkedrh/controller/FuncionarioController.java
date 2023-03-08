@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import lombok.extern.log4j.Log4j2;
+import teste.backend.linkedrh.exceptions.NotFoundException;
 import teste.backend.linkedrh.models.Funcionario;
 import teste.backend.linkedrh.models.dtos.FuncionarioDTO;
 import teste.backend.linkedrh.service.FuncionarioService;
@@ -42,7 +43,7 @@ public class FuncionarioController {
         if(this.veirificarToken()){
             return ResponseEntity.ok().body(funcionarioService.buscarFuncionarios());
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); 
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); 
     }
 
     @GetMapping("/{id}")
@@ -51,7 +52,7 @@ public class FuncionarioController {
         if(this.veirificarToken()){
             return ResponseEntity.ok().body(funcionarioService.buscarFuncionario(funcionarioId));
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); 
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); 
     }
 
     @PostMapping("/")
@@ -63,19 +64,19 @@ public class FuncionarioController {
                         .path("/{id}").buildAndExpand(funcionario.getCodigo()).toUri();
             return ResponseEntity.created(uri).build();
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); 
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); 
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Funcionario> atualizarfuncionario(@PathVariable("id") int funcionarioId, @RequestBody FuncionarioDTO funcionarioDto) {
+    @PutMapping("/{id}")
+    public ResponseEntity<Funcionario> atualizarfuncionario(@PathVariable("id") int funcionarioId,@Valid @RequestBody FuncionarioDTO funcionarioDto) {
         log.info("Servico de atualizar um funcionario especifico foi chamado, funcionario de código {}", funcionarioId);
         if(this.veirificarToken()){
             if(funcionarioService.atualizarFuncionario(funcionarioId, funcionarioDto)){
                 return ResponseEntity.ok().build(); 
             } 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
+            throw new NotFoundException("Funcionario não encontrado! Codigo: " + funcionarioId);
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); 
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); 
     }
 
     @DeleteMapping("/{id}")
@@ -85,9 +86,9 @@ public class FuncionarioController {
             if(funcionarioService.excluirFuncionario(funcionarioId)){
                 return ResponseEntity.ok().build(); 
             } 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
+            throw new NotFoundException("Funcionario não encontrado! Codigo: " + funcionarioId);
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); 
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); 
     }
 
     private boolean veirificarToken() {

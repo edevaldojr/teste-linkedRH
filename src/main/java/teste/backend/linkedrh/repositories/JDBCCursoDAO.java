@@ -15,6 +15,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import lombok.extern.log4j.Log4j2;
+import teste.backend.linkedrh.exceptions.NotFoundException;
 import teste.backend.linkedrh.models.Curso;
 import teste.backend.linkedrh.repositories.interfaces.CursoDAO;
 
@@ -36,7 +37,12 @@ public class JDBCCursoDAO implements CursoDAO {
     public Curso findById(int cursoId) {
         String sql = "SELECT * FROM curso WHERE codigo=?";
         log.debug("SQL: " + sql.replace("?", cursoId + ""));
-        return jdbcTemplate.queryForObject(sql, new CursoRowMapper(), cursoId);
+
+        try{
+            return jdbcTemplate.queryForObject(sql, new CursoRowMapper(), cursoId);
+        } catch (Exception exception) {
+            throw new NotFoundException("Curso não encontrado! Codigo: " + cursoId);
+        }
     }
 
     @Override

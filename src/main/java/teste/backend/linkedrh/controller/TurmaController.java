@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import lombok.extern.log4j.Log4j2;
+import teste.backend.linkedrh.exceptions.NotFoundException;
 import teste.backend.linkedrh.models.Turma;
 import teste.backend.linkedrh.models.dtos.TurmaDTO;
 import teste.backend.linkedrh.service.TurmaService;
@@ -41,7 +42,7 @@ public class TurmaController {
         if(this.veirificarToken()){
             return ResponseEntity.ok().body(turmaService.buscarTurmas());
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @GetMapping("/{id}")
@@ -50,7 +51,16 @@ public class TurmaController {
         if(this.veirificarToken()){
             return ResponseEntity.ok().body(turmaService.buscarTurma(turmaId));
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    @GetMapping("/curso/{cursoId}")
+    public ResponseEntity<List<Turma>> buscarTurmaPorCurso(@PathVariable("cursoId") int cursoId) {
+        log.info("Servico de buscar uma turma especifica pela código do curso foi chamado, curso de código {}", cursoId);
+        if(this.veirificarToken()){
+            return ResponseEntity.ok().body(turmaService.buscarTurmasPorCurso(cursoId));
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @PostMapping("/")
@@ -62,19 +72,43 @@ public class TurmaController {
                         .path("/{id}").buildAndExpand(turma.getCodigo()).toUri();
             return ResponseEntity.created(uri).build();
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Turma> atualizarTurma(@PathVariable("id") int turmaId, @RequestBody TurmaDTO turmaDto) {
         log.info("Servico de atualizar um turma especifico foi chamado, turma de código {}", turmaId);
         if(this.veirificarToken()){ 
             if(turmaService.atualizarTurma(turmaId, turmaDto)){
                 return ResponseEntity.ok().build(); 
             } 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
+            throw new NotFoundException("Turma não encontrada! Codigo: " + turmaId);
         }
-       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    @PutMapping("/{turmaId}/addFuncionario/{funcionarioId}")
+    public ResponseEntity<Turma> adicionarFuncionario(@PathVariable("turmaId") int turmaId, @PathVariable("funcionarioId") int funcionarioId) {
+        log.info("Servico de adicionar um funcionario a uma turma especifica foi chamado, turma de código {} e funcionario de código {}", turmaId, funcionarioId);
+        if(this.veirificarToken()){ 
+            if(turmaService.adicionarFuncionario(turmaId, funcionarioId)){
+                return ResponseEntity.ok().build(); 
+            } 
+            throw new NotFoundException("Turma não encontrada! Codigo: " + turmaId);
+        }
+       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    @DeleteMapping("/{turmaId}/removeFuncionario/{funcionarioId}")
+    public ResponseEntity<Turma> removerFuncionario(@PathVariable("turmaId") int turmaId, @PathVariable("funcionarioId") int funcionarioId) {
+        log.info("Servico de remover um funcionario a uma turma especifica foi chamado, turma de código {} e funcionario de código {}", turmaId, funcionarioId);
+        if(this.veirificarToken()){ 
+            if(turmaService.removerFuncionario(turmaId, funcionarioId)){
+                return ResponseEntity.ok().build(); 
+            } 
+            throw new NotFoundException("Turma não encontrada ou funcionário não é participante desta turma! Codigo: " + turmaId);
+        }
+       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @DeleteMapping("/{id}")
@@ -84,9 +118,9 @@ public class TurmaController {
             if(turmaService.excluirTurma(turmaId)){
                 return ResponseEntity.ok().build(); 
             } 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Turma não encontrada! Codigo: " + turmaId);
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
      private boolean veirificarToken() {

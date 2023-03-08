@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import lombok.extern.log4j.Log4j2;
+import teste.backend.linkedrh.exceptions.NotFoundException;
 import teste.backend.linkedrh.models.Curso;
 import teste.backend.linkedrh.models.dtos.CursoDTO;
 import teste.backend.linkedrh.service.CursoService;
@@ -41,7 +42,7 @@ public class CursoController {
         if(this.veirificarToken()){
             return ResponseEntity.ok().body(cursoService.buscarCursos());
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @GetMapping("/{id}")
@@ -50,7 +51,7 @@ public class CursoController {
         if(this.veirificarToken()){
             return ResponseEntity.ok().body(cursoService.buscarCurso(cursoId));
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @PostMapping("/")
@@ -62,19 +63,19 @@ public class CursoController {
                         .path("/{id}").buildAndExpand(curso.getCodigo()).toUri();
             return ResponseEntity.created(uri).build();
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Curso> atualizarCurso(@PathVariable("id") int cursoId, @RequestBody CursoDTO cursoDto) {
         log.info("Servico de atualizar um curso especifico foi chamado, curso de código {}", cursoId);
         if(this.veirificarToken()){ 
             if(cursoService.atualizarCurso(cursoId, cursoDto)){
                 return ResponseEntity.ok().build(); 
             } 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
+            throw new NotFoundException("Curso não encontrado! Codigo: " + cursoId);
         }
-       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @DeleteMapping("/{id}")
@@ -84,9 +85,9 @@ public class CursoController {
             if(cursoService.excluirCurso(cursoId)){
                 return ResponseEntity.ok().build(); 
             } 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Curso não encontrado! Codigo: " + cursoId);
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
      private boolean veirificarToken() {

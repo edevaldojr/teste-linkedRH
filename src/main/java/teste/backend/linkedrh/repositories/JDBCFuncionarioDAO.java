@@ -4,7 +4,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.ZoneId;
 
 import java.util.List;
 import static java.util.Objects.nonNull;
@@ -17,6 +16,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import lombok.extern.log4j.Log4j2;
+import teste.backend.linkedrh.exceptions.NotFoundException;
 import teste.backend.linkedrh.models.Funcionario;
 import teste.backend.linkedrh.repositories.interfaces.FuncionarioDAO;
 
@@ -38,7 +38,12 @@ public class JDBCFuncionarioDAO implements FuncionarioDAO {
     public Funcionario findById(int funcionarioId) {
         String sql = "SELECT * FROM funcionario WHERE codigo=?";
         log.debug("SQL: " + sql.replace("?", funcionarioId + ""));
-        return jdbcTemplate.queryForObject(sql, new FuncionarioRowMapper(), funcionarioId);
+        try{
+            return jdbcTemplate.queryForObject(sql, new FuncionarioRowMapper(), funcionarioId);
+        } catch (Exception exception) {
+            throw new NotFoundException("Funcionario não encontrado! Codigo: " + funcionarioId);
+        }
+        
     }
 
     @Override
@@ -81,7 +86,7 @@ public class JDBCFuncionarioDAO implements FuncionarioDAO {
 
     @Override
     public boolean delete(int id) {      
-        String sql = "DELETE FROM funcionario WHERE codigo=?";
+        String sql = "UPDATE funcionario SET status=0 WHERE codigo=?";
         log.debug("SQL: " + sql.replace("?", id + ""));
         return jdbcTemplate.update(sql, id) >= 1 ? true : false;
     }
