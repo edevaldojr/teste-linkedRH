@@ -5,6 +5,7 @@ import java.util.List;
 import static java.util.Objects.nonNull;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,7 +55,7 @@ public class FuncionarioController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Funcionario> criarfuncionario(@RequestBody FuncionarioDTO funcionarioDto) {
+    public ResponseEntity<Funcionario> criarfuncionario(@Valid @RequestBody FuncionarioDTO funcionarioDto) {
         log.info("Servico de criar funcionario foi chamado");
         if(this.veirificarToken()){
             Funcionario funcionario = funcionarioService.criarFuncionario(funcionarioDto);

@@ -11,7 +11,7 @@ create table Funcionario(
 	codigo int not null AUTO_INCREMENT,
     nome varchar(200) not null,
     cpf char(11) not null,
-    nacimento date not null,
+    nascimento date not null,
     cargo varchar(200) not null,
     admissao date not null,
     status bit not null,

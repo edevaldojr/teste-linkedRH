@@ -17,13 +17,13 @@ public class Turma {
     private LocalDate fim;
     private String local;
     private List<Funcionario> funcionarios;
-    private int curso_id;
+    private int cursoId;
     
-    public Turma(LocalDate inicio, LocalDate fim, String local, int curso_id, List<Funcionario> funcionarios) {
+    public Turma(LocalDate inicio, LocalDate fim, String local, int cursoId, List<Funcionario> funcionarios) {
         this.inicio = inicio;
         this.fim = fim;
         this.local = local;
-        this.curso_id = curso_id;
+        this.cursoId = cursoId;
         this.funcionarios = funcionarios;
     }
 

@@ -45,18 +45,19 @@ public class JDBCFuncionarioDAO implements FuncionarioDAO {
     public Funcionario save(Funcionario funcionario) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        String sql = "INSERT INTO funcionario(nome, cpf, nacimento, cargo, admissao) VALUES (?,?,?,?,?)";
+        String sql = "INSERT INTO funcionario(nome, cpf, nascimento, cargo, admissao, status) VALUES (?,?,?,?,?,?)";
         jdbcTemplate.update(connection -> {
             PreparedStatement psmt = connection.prepareStatement(sql, new String[] { "id" });
             psmt.setString(1, funcionario.getNome());
             psmt.setString(2, funcionario.getCpf());
             psmt.setDate(3, Date.valueOf(funcionario.getNascimento()));
             psmt.setString(4, funcionario.getCargo());
-            psmt.setDate(5, Date.valueOf(funcionario.getAdimissao()));
+            psmt.setDate(5, Date.valueOf(funcionario.getAdmissao()));
+            psmt.setBoolean(6, funcionario.isStatus());
 
             return psmt;
         }, keyHolder);
-        log.debug("SQL: " + sql.replace("?,?,?,?,?", funcionario.getNome() + "," + funcionario.getNascimento() + "," + funcionario.getCargo() + "," + funcionario.getAdimissao()));
+        log.debug("SQL: " + sql.replace("?,?,?,?,?,?", funcionario.getNome() + "," + funcionario.getNascimento() + "," + funcionario.getCargo() + "," + funcionario.getAdmissao()+ "," + funcionario.isStatus()));
         
         int generatedId = nonNull(keyHolder.getKey()) ? keyHolder.getKey().intValue() : -1;
         funcionario.setCodigo(generatedId);
@@ -66,15 +67,16 @@ public class JDBCFuncionarioDAO implements FuncionarioDAO {
 
     @Override
     public boolean update(int funcionarioId, Funcionario funcionario) {
-        String sql = "UPDATE funcionario SET nome=?, cpf=?, nacimento=?, cargo=?, admissao=? WHERE codigo=?";
+        String sql = "UPDATE funcionario SET nome=?, cpf=?, nascimento=?, cargo=?, admissao=?, status=? WHERE codigo=?";
         log.debug("SQL: " + sql.replace("nome=?", "nome=" + funcionario.getNome())
                             .replace("cpf=?", "cpf=?" + funcionario.getCpf())
-                            .replace("nacimento=?", "nacimento=" + funcionario.getNascimento())
+                            .replace("nascimento=?", "nascimento=" + funcionario.getNascimento())
                             .replace("cargo=?", "cargo=" + funcionario.getCargo())
-                            .replace("admissao=?", "admissao=" + funcionario.getAdimissao())
-                            .replace("codigo=?", "codigo=" + funcionario.getCodigo()));
+                            .replace("admissao=?", "admissao=" + funcionario.getAdmissao())
+                            .replace("codigo=?", "codigo=" + funcionario.getCodigo())
+                            .replace("status=?", funcionario.isStatus() ? "status=1" : "status=0"));
 
-        return jdbcTemplate.update(sql, funcionario.getNome(), funcionario.getCpf(), funcionario.getNascimento(), funcionario.getCargo(), funcionario.getAdimissao(), funcionarioId) >= 1 ? true : false;
+        return jdbcTemplate.update(sql, funcionario.getNome(), funcionario.getCpf(), funcionario.getNascimento(), funcionario.getCargo(), funcionario.getAdmissao(), funcionario.isStatus(), funcionarioId) >= 1 ? true : false;
     }
 
     @Override
@@ -92,10 +94,11 @@ public class JDBCFuncionarioDAO implements FuncionarioDAO {
             funcionario.setCodigo(rs.getInt("codigo"));
             funcionario.setNome(rs.getString("nome"));
             funcionario.setCpf(rs.getString("cpf"));
-            funcionario.setNascimento(rs.getDate("nascimento").toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            funcionario.setNascimento(rs.getDate("nascimento").toLocalDate());
             funcionario.setCargo(rs.getString("cargo"));
-            funcionario.setAdimissao(rs.getDate("admissao").toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-            
+            funcionario.setAdmissao(rs.getDate("admissao").toLocalDate());
+            funcionario.setStatus(rs.getBoolean("status"));
+
             return funcionario;
         }
     }

@@ -22,6 +22,7 @@ public class FuncionarioDTO {
     @NotNull(message = "Campo cargo obrigatório")
     private String cargo;
     @NotNull(message = "Campo data de admissão obrigatório")
-    private LocalDate adimissao;
-
+    private LocalDate admissao;
+    @NotNull(message = "Campo status obrigatório")
+    private boolean status;
 }

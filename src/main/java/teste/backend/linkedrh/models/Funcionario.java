@@ -16,6 +16,7 @@ public class Funcionario {
     private String cpf;
     private LocalDate nascimento;
     private String cargo;
-    private LocalDate adimissao;
-    
+    private LocalDate admissao;
+    private boolean status;
+
 }
