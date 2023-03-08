@@ -2,6 +2,9 @@ package teste.backend.linkedrh.controller;
 
 import java.net.URI;
 import java.util.List;
+import static java.util.Objects.nonNull;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,43 +32,71 @@ public class CursoController {
     @Autowired
     private CursoService cursoService;
 
+    @Autowired
+    private HttpServletRequest request;
+    
     @GetMapping("/")
-    public ResponseEntity<List<Curso>> getCursos() {
+    public ResponseEntity<List<Curso>> buscarCursos() {
         log.info("Servico de buscar cursos foi chamado");
-        return ResponseEntity.ok().body(cursoService.getCursos());
+        if(this.veirificarToken()){
+            return ResponseEntity.ok().body(cursoService.buscarCursos());
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Curso> getCurso(@PathVariable("id") int cursoId) {
+    public ResponseEntity<Curso> buscarCurso(@PathVariable("id") int cursoId) {
         log.info("Servico de buscar um curso especifico foi chamado, curso de código {}", cursoId);
-        return ResponseEntity.ok().body(cursoService.getCurso(cursoId));
+        if(this.veirificarToken()){
+            return ResponseEntity.ok().body(cursoService.buscarCurso(cursoId));
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @PostMapping("/")
     public ResponseEntity<Curso> criarCurso(@RequestBody CursoDTO cursoDto) {
         log.info("Servico de criar curso foi chamado");
-        Curso curso = cursoService.criarCurso(cursoDto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                    .path("/{id}").buildAndExpand(curso.getCodigo()).toUri();
-        return ResponseEntity.created(uri).build();
+        if(this.veirificarToken()){ 
+            Curso curso = cursoService.criarCurso(cursoDto);
+            URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                        .path("/{id}").buildAndExpand(curso.getCodigo()).toUri();
+            return ResponseEntity.created(uri).build();
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<Curso> atualizarCurso(@PathVariable("id") int cursoId, @RequestBody CursoDTO cursoDto) {
         log.info("Servico de atualizar um curso especifico foi chamado, curso de código {}", cursoId);
-        if(cursoService.atualizarCurso(cursoId, cursoDto)){
-            return ResponseEntity.ok().build(); 
-        } 
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
+        if(this.veirificarToken()){ 
+            if(cursoService.atualizarCurso(cursoId, cursoDto)){
+                return ResponseEntity.ok().build(); 
+            } 
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
+        }
+       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluirCurso(@PathVariable("id") int cursoId) {
         log.info("Servico de excluir um curso especifico foi chamado, curso de código {}", cursoId);
-        if(cursoService.excluirCurso(cursoId)){
-            return ResponseEntity.ok().build(); 
-        } 
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
+        if(this.veirificarToken()){ 
+            if(cursoService.excluirCurso(cursoId)){
+                return ResponseEntity.ok().build(); 
+            } 
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
+     private boolean veirificarToken() {
+        log.info("Verificando token da requisição http");
+        String authHeader = request.getHeader("Authorization");
+        if (nonNull(authHeader) && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7); // remove prefixo "Bearer "
+            // Faça algo com o token...
+            return true;
+        }
+        return false;
+    }
 }

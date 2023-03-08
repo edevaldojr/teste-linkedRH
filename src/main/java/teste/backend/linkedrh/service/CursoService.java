@@ -19,12 +19,12 @@ public class CursoService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public List<Curso> getCursos() {
+    public List<Curso> buscarCursos() {
         List<Curso> curso = cursoDAO.findAll();
         return curso;
     }
 
-    public Curso getCurso(int cursoId) {
+    public Curso buscarCurso(int cursoId) {
         Curso curso = cursoDAO.findById(cursoId);
         return curso;
     }
