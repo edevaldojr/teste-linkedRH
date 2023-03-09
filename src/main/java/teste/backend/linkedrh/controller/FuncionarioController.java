@@ -37,11 +37,11 @@ public class FuncionarioController {
     @Autowired
     private HttpServletRequest request;
 
-    @GetMapping("/")
-    public ResponseEntity<List<Funcionario>> getfuncionarios() {
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Funcionario>> getfuncionarios(String status) {
         log.info("Servico de buscar funcionarios foi chamado");
         if(this.veirificarToken()){
-            return ResponseEntity.ok().body(funcionarioService.buscarFuncionarios());
+            return ResponseEntity.ok().body(nonNull(status) ? funcionarioService.buscarFuncionariosFiltrados(status) : funcionarioService.buscarFuncionarios());
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); 
     }

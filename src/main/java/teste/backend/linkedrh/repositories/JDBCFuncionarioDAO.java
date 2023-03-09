@@ -32,7 +32,15 @@ public class JDBCFuncionarioDAO implements FuncionarioDAO {
         String sql = "SELECT * FROM funcionario";
         log.debug("SQL: " + sql);
         return jdbcTemplate.query(sql, new FuncionarioRowMapper());
-    }    
+    }
+
+    @Override
+    public List<Funcionario> findAllByStatus(String status) {
+        String sql = "SELECT * FROM funcionario WHERE status=?";
+        log.debug("SQL: " + sql.replace("?", status));
+        return jdbcTemplate.query(sql.replace("?", status), new FuncionarioRowMapper());
+    }
+
    
     @Override
     public Funcionario findById(int funcionarioId) {

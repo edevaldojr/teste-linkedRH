@@ -8,6 +8,8 @@ public interface FuncionarioDAO {
     
     List<Funcionario> findAll();
     
+    List<Funcionario> findAllByStatus(String status);
+
     Funcionario findById(int funcionarioId);
 
     Funcionario save(Funcionario funcionario);

@@ -24,6 +24,11 @@ public class FuncionarioService {
         return funcionarios;
     }
 
+    public List<Funcionario> buscarFuncionariosFiltrados(String status) {
+        List<Funcionario> funcionarios = funcionarioDAO.findAllByStatus(status);
+        return funcionarios;
+    }
+
     public Funcionario buscarFuncionario(int funcionarioId) {
         Funcionario funcionario = funcionarioDAO.findById(funcionarioId);
         return funcionario;
