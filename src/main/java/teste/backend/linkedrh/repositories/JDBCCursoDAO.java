@@ -77,10 +77,10 @@ public class JDBCCursoDAO implements CursoDAO {
     }
 
     @Override
-    public boolean delete(int id) {      
+    public boolean delete(int cursoId) {      
         String sql = "DELETE FROM curso WHERE codigo=?";
-        log.debug("SQL: " + sql.replace("?", id + ""));
-        return jdbcTemplate.update(sql, id) >= 1 ? true : false;
+        log.debug("SQL: " + sql.replace("?", cursoId + ""));
+        return jdbcTemplate.update(sql, cursoId) >= 1 ? true : false;
     }
 
 

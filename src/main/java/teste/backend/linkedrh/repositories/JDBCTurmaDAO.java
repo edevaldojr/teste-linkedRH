@@ -62,7 +62,6 @@ public class JDBCTurmaDAO implements TurmaDAO {
         }
     }
 
-
     @Override
     public Turma save(Turma turma) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -87,11 +86,10 @@ public class JDBCTurmaDAO implements TurmaDAO {
 
     @Override
     public boolean update(int turmaId, Turma turma) {
-        String sql = "UPDATE turma SET inicio=?, fim=?, local=?, curso_id=? WHERE codigo=?";
+        String sql = "UPDATE turma SET inicio=?, fim=?, local=? WHERE codigo=?";
         log.debug("SQL: " + sql.replace("inicio=?", "inicio=" + turma.getInicio())
                             .replace("fim=?", "fim=" + turma.getFim())
                             .replace("local=?", "local=" + turma.getLocal())
-                            .replace("curso_id=?", "curso_id=" + turmaId)
                             .replace("codigo=?", "codigo=" + turmaId));
 
         return jdbcTemplate.update(sql, turma.getInicio(), turma.getFim(), turma.getLocal(), turma.getCursoId(), turmaId) >= 1 ? true : false;

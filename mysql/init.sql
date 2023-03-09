@@ -25,7 +25,7 @@ create table Turma(
     local varchar(200) not null,
     curso_id int not null,
     PRIMARY KEY(codigo),
-    FOREIGN KEY (curso_id) REFERENCES Curso(codigo)
+    FOREIGN KEY (curso_id) REFERENCES Curso(codigo) ON DELETE CASCADE
 );
 
 create table TurmaParticipante(
@@ -33,6 +33,6 @@ create table TurmaParticipante(
     funcionario_id int not null,
     turma_id int not null,
     PRIMARY KEY(codigo),
-    FOREIGN KEY (turma_id) REFERENCES Turma(codigo),
+    FOREIGN KEY (turma_id) REFERENCES Turma(codigo) ON DELETE CASCADE,
     FOREIGN KEY (funcionario_id) REFERENCES Funcionario(codigo)
 );
